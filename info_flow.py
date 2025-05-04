@@ -4,7 +4,7 @@
 
 '''
 Why so much declassifying
-what do security goals mean for cofidentiality and integrity
+what do security goals mean for cofidentiality and integrity, and info flow analysis
 Is it bad that our customers_db has differnt labels conditionally?
 
 Assumed strength - we usually assume customers is {market: market}. if it is {market: market, advertiser}, then flow in will be an issue
@@ -119,7 +119,7 @@ def handle_new_book_offer(books_db, customers_db, book_id, vendor_name, title, a
     description      : {all: vendor}
     price            : {all: vendor}
     
-    issold           : {market: market}
+    issold           : {market: customer, market}
     """
 
 
@@ -175,7 +175,7 @@ def handle_new_book_offer(books_db, customers_db, book_id, vendor_name, title, a
     flag = False
 
     # allowed read flow: {market: market}
-    """{market: market}"""
+    """{market: customer, market}"""
     issold = False
 
     # allowed read flow: {vendor: vendor, market}
@@ -522,11 +522,10 @@ def handle_search_book(books_db, book_id, user_name, vendor_name, title, author,
             # {market: market, advertiser} U {market: {}} = {market: {}}
             # {market: market} C {market: {}}
 
-            """
+        """
             Change label with allowed flow:
             customers_db[user_name]["searches"] -> customers_db[user_name]["searches"]   :  {market: market} -> {market: user, market}
-            """
-
+        """
         # {market: user, market, advertiser} C {market: market, advertiser}
         """{market: user(customer), market} C {market: user(customer), market}"""
         customers_db[user_name]["searches"].append(a_book_id)
@@ -730,10 +729,7 @@ def handle_purchase_book(books_db, customers_db, book_id, price, name):
         # {market: market} C {market: {}}
         # {market: market, advertiser} C {market: market, advertiser}
 
-        """
-        Change label with allowed flow
-        customers_db[user_name]["purchases"] -> customers_db[user_name]["purchases"]  : {market: market} -> {market: customer, market}
-        """
+        pass
 
     
     return cv_ret
