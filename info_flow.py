@@ -7,6 +7,11 @@ Why so much declassifying
 what do security goals mean for cofidentiality and integrity
 Is it bad that our customers_db has differnt labels conditionally?
 
+Assumed strength - we usually assume customers is {market: market}. if it is {market: market, advertiser}, then flow in will be an issue
+because it was weak -> strong and strong got weaker, if it gets <weak then flow is not allowed. Rn we dont flow into customers unless selling
+data which I think is okay, but we need to start adding to customers_db the searches even if they dont sell the data, unless we dont?
+adding to customers
+Change header definition of db labels - both cases for books_db and for integrity, change search and purchase to always be {market: market, customer}
 '''
 
 # Customers database: key = user_id
@@ -237,7 +242,7 @@ def handle_new_book_offer(books_db, customers_db, book_id, vendor_name, title, a
         "condition": m_condition,                  """{market/: market}""" # {market: market}
         "description": m_description,              """{market/: market}""" # {market: market}
         "price": m_price,                          """{market/: market}""" # {market: market}
-        "issold": issold                            # {market: market}
+        "issold": issold                         # """{market/: customer, market}""" # {market: market}
     }
 
     #{market: market}
@@ -500,6 +505,7 @@ def handle_search_book(books_db, book_id, user_name, vendor_name, title, author,
 
 
     if a_user_exists:
+
         if sell_data == True:    
             # DECLASSIFY
             # m_book_id -> a_book_id            : {market: user, market} -> {market: user, market, advertiser}
@@ -521,9 +527,10 @@ def handle_search_book(books_db, book_id, user_name, vendor_name, title, author,
             customers_db[user_name]["searches"] -> customers_db[user_name]["searches"]   :  {market: market} -> {market: user, market}
             """
 
-            # {market: market, advertiser} C {market: market, advertiser}
-            """{market: user, market} C {market: user, market}"""
-            customers_db[user_name]["searches"].append(a_book_id)
+        # {market: user, market, advertiser} C {market: market, advertiser}
+        """{market: user(customer), market} C {market: user(customer), market}"""
+        customers_db[user_name]["searches"].append(a_book_id)
+
 
 
      # if_acts_for(handle_search_book, (market)):
@@ -603,11 +610,12 @@ def handle_purchase_book(books_db, customers_db, book_id, price, name):
             match = (id,data)
             break
 
+    # if_acts_for(handle_purchase_book, (market)):
     #DECLASSIFY match to be read by customer
     # match -> c_match      : {market: market} -> {market: customer, market}
     # PROOF:
-    # {market: cusomter, market} U {market: {}; customer: {}} = {market: {}; customer: {}}
-    # {market: market} C {market: {}; customer: {}}
+    # {market: customer, market} U {market: {}} = {market: {}}
+    # {market: market} C {market: {}}
     
     """ Already {market: customer, market}, sufficient for return to user """
 
@@ -654,22 +662,24 @@ def handle_purchase_book(books_db, customers_db, book_id, price, name):
                 {market: customer, market}  C {market: customer, market} """
             vendor_exists = True
 
+    # if_acts_for(handle_purchase_book, (market)):
     #DECLASSIFY return variables to be read by customer, vendor
     # vendor_exists -> cv_vendor_exists      : {market: market} -> {market: customer, vendor, market}
     # user_exists -> cv_user_exists          : {market: market} -> {market: customer, vendor, market}
     # m_cust_address -> cv_cust_address      : {market: market} -> {market: customer, vendor, market}
     # m_vendor_name -> cv_vendor_name        : {market: market} -> {market: customer, vendor, market}
     # PROOF:
-    # {market: customer, vendor, market} U { market: {}; customer: {}} = {market: {}; customer: {}}
-    # {market: market} C {market: {}; customer: {}}
+    # {market: customer, vendor, market} U { market: {}} = {market: {}}
+    # {market: market} C {market: {}}
 
+    # if_acts_for(handle_purchase_book, (market)):
     #DECLASSIFY return variables to be read by customer, vendor
     # ret -> cv_ret                          : {market: customer, market} -> {market: customer, vendor, market}
     # m_book_id -> cv_book_id                : {market: customer, market} -> {market: customer, vendor, market}
     # m_name -> cv_name                      : {market: customer, market} -> {market: customer, vendor, market}
     # PROOF:
-    # {market: customer, vendor, market} U {market: {}; customer: {}} = {market: {}; customer: {}}
-    # {market: customer, market} C {market: {}; customer: {}}
+    # {market: customer, vendor, market} U {market: {}} = {market: {}}
+    # {market: customer, market} C {market: {}}
 
     """ Already {market: customer, market}, sufficient for purchase """
 
@@ -686,6 +696,14 @@ def handle_purchase_book(books_db, customers_db, book_id, price, name):
         """ Allowed flow {market: customer, market} U {market: customer, market} """
         cv_ret = f"Book: {cv_book_id} sold by {cv_vendor_name} to {cv_name} at {cv_cust_address}"
 
+        # Allowed flow {market: customer, vendor, market} C {market: market}
+        """ Allowed flow {market: customer, market} U {market: customer, market} C {market: customer, market}"""
+        books_db[cv_book_id]["issold"] = True
+
+        # Allowed flow {market: customer, vendor, market} C {market: market}
+        """ Allowed flow {market: customer, market} U {market: customer, market} C {market: customer, market}"""
+        customers_db[user_name]["purchases"].append(cv_book_id)
+
 
     #{market: market}
     """{market: customer, market}"""
@@ -695,32 +713,16 @@ def handle_purchase_book(books_db, customers_db, book_id, price, name):
         """{market: customer, market} C {market: customer, market}"""
         sell_data = True
 
+    # if_acts_for(handle_purchase_book, (market)):
     # DECLASSIFY
         # sell_data -> sell_data     : {market: market} -> {market: customer, vendor, market, advertiser}
         # PROOF
         # {market: customer, vendor, market, advertiser} U {market: {}} = {market: {}}
         # {market: market} C {market: {}}
-
-    # DECLASSIFY
-        # cv_vendor_exists -> a_vendor_exists      : {market: customer, vendor, market} -> {market: customer, vendor, market, advertiser}
-        # cv_user_exists -> a_user_exists          : {market: customer, vendor, market} -> {market: customer, vendor, market, advertiser}
-        # PROOF
-        # {market: customer, vendor, market, advertiser} U {market: {}} = {market: {}}
-        # {market: market} C {market: {}}
-    """{market: customer, market}"""
-    a_vendor_exists = cv_vendor_exists
-    a_user_exists = cv_user_exists
     
-    if a_vendor_exists and a_user_exists and sell_data:    
-        # DECLASSIFY
-        # cv_book_id -> a_book_id            : {market: customer, vendor, market} -> {market: customer, vendor, market, advertiser}
-        # PROOF
-        # {market: customer, vendor, market, advertiser} U {market: {}} = {market: {}}
-        # {market: customer, vendor, market} C {market: {}}
+    if sell_data:   
 
-        # {market: customer, vendor, market, advertiser} U {market: customer, vendor, market, advertiser} C {market: customer, vendor, market, advertiser}
-        a_book_id = cv_book_id
-
+        # if_acts_for(handle_purchase_book, (market)):
         # DECLASSIFY
         # customers_db[user_name] -> customers_db[user_name]     : {market: market} -> {market: market, advertiser}
         # PROOF
@@ -733,11 +735,6 @@ def handle_purchase_book(books_db, customers_db, book_id, price, name):
         customers_db[user_name]["purchases"] -> customers_db[user_name]["purchases"]  : {market: market} -> {market: customer, market}
         """
 
-        # {market: customer, vendor, market, advertiser} C {market: market, advertiser}
-        """{market: customer, market} C {market: customer, market}"""
-        customers_db[user_name]["purchases"].append(a_book_id)
-
-        
     
     return cv_ret
 
