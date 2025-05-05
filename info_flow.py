@@ -73,18 +73,6 @@ books_db = {
         "description": "Mastering data structures through practical examples.",
         "price": 45.00,
         "issold": False
-    },
-    104: {
-        "vendor_name": "Alice Smith",
-        "title": "Some new book",
-        "author": "Bob",
-        "year": 2020,
-        "edition": "1st",
-        "publisher": "LearnTech",
-        "condition": "new",
-        "description": "Mastering data structures through practical examples.",
-        "price": 12.00,
-        "issold": False
     }
 }
 
@@ -242,19 +230,16 @@ def handle_new_book_offer(books_db, customers_db, book_id, vendor_name, title, a
     # All data fields owned by vendor, shared with market for storage
     # Information Flow: All below are secure as values are inserted into market-controlled DB
     books_db[book_id] = {
-        "vendor_name": m_vendor_name, """{market/: market}"""  # {market: market} 
-                                      "title": m_title, """{market/: market}"""  # {market: market}
-                                                        "author": m_author, """{market/: market}"""  # {market: market}
-                                                                            "year": m_year,
-        """{market/: market}"""  # {market: market}
-        "edition": m_edition, """{market/: market}"""  # {market: market}
-                              "publisher": m_publisher, """{market/: market}"""  # {market: market}
-                                                        "condition": m_condition,
-        """{market/: market}"""  # {market: market}
-        "description": m_description, """{market/: market}"""  # {market: market}
-                                      "price": m_price, """{market/: market}"""  # {market: market}
-                                                        "issold": issold
-        # """{market/: customer, market}""" # {market: market}
+        "vendor_name": m_vendor_name,           #     """{market/: market}""" # {market: market}
+        "title": m_title,                       #     """{market/: market}""" # {market: market}
+        "author": m_author,                      #    """{market/: market}""" # {market: market}
+        "year": m_year,                           #   """{market/: market}""" # {market: market}
+        "edition": m_edition,                    #    """{market/: market}""" # {market: market}
+        "publisher": m_publisher,                #    """{market/: market}""" # {market: market}
+        "condition": m_condition,                #    """{market/: market}""" # {market: market}
+        "description": m_description,            #    """{market/: market}""" # {market: market}
+        "price": m_price,                         #   """{market/: market}""" # {market: market}
+        "issold": issold                         # """{market/: customer, market}""" # {market: market}
     }
 
     # {market: market}
@@ -660,10 +645,6 @@ def handle_purchase_book(books_db, customers_db, book_id, price, name):
 
     # {market: market}
     """ {market: customer, market} """
-    vendor_exists = False
-
-    # {market: market}
-    """ {market: customer, market} """
     m_cust_address = None
 
     # {market: market}
@@ -680,16 +661,9 @@ def handle_purchase_book(books_db, customers_db, book_id, price, name):
                 {market: customer, market}  C {market: customer, market} """
             m_cust_address = data["address"]
             user_exists = True
-        if m_vendor_name == user_name:
-            # Allowed flow {market: market} U {market: market} = {market: market}
-            """ Allowed flow {market: market} U {market: customer, market} = {market: customer, market}
-                e U B = {market: market} U {market: customer, market} = {market: customer, market} 
-                {market: customer, market}  C {market: customer, market} """
-            vendor_exists = True
 
     # if_acts_for(handle_purchase_book, (market)):
     # DECLASSIFY return variables to be read by customer, vendor
-    # vendor_exists -> cv_vendor_exists      : {market: market} -> {market: customer, vendor, market}
     # user_exists -> cv_user_exists          : {market: market} -> {market: customer, vendor, market}
     # m_cust_address -> cv_cust_address      : {market: market} -> {market: customer, vendor, market}
     # m_vendor_name -> cv_vendor_name        : {market: market} -> {market: customer, vendor, market}
@@ -710,13 +684,12 @@ def handle_purchase_book(books_db, customers_db, book_id, price, name):
 
     cv_cust_address = m_cust_address
     cv_vendor_name = m_vendor_name
-    cv_vendor_exists = vendor_exists
     cv_user_exists = user_exists
     cv_ret = ret
     cv_book_id = m_book_id
     cv_name = m_name
 
-    if cv_vendor_exists and cv_user_exists:
+    if cv_user_exists:
         # Allowed flow {market: customer, vendor, market}
         """ Allowed flow {market: customer, market} U {market: customer, market} """
         cv_ret = f"Book: {cv_book_id} sold by {cv_vendor_name} to {cv_name} at {cv_cust_address}"
