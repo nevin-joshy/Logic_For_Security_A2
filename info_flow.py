@@ -1,17 +1,6 @@
 # comments for CONFIDENTIALITY
 """ comments for INTEGRITY """
 
-'''
-Why so much declassifying
-what do security goals mean for cofidentiality and integrity, and info flow analysis
-Is it bad that our customers_db has differnt labels conditionally?
-
-Assumed strength - we usually assume customers is {market: market}. if it is {market: market, advertiser}, then flow in will be an issue
-because it was weak -> strong and strong got weaker, if it gets <weak then flow is not allowed. Rn we dont flow into customers unless selling
-data which I think is okay, but we need to start adding to customers_db the searches even if they dont sell the data, unless we dont?
-adding to customers
-Change header definition of db labels - both cases for books_db and for integrity, change search and purchase to always be {market: market, customer}
-'''
 
 # Customers database: key = user_id
 customers_db = {
@@ -31,6 +20,21 @@ customers_db = {
         "address": "789 Oak Blvd, Boston, MA",
         "sell_data": False,
         "searches": [101, 102],
+        "purchases": []
+    }
+}
+
+sold_customers = {
+    "Alice Smith": {
+        "address": "123 Main St, Springfield, IL",
+        "sell_data": True,
+        "searches": [101,102],
+        "purchases": [101]
+    },
+    "Bob Johnson": {
+        "address": "456 Maple Ave, Denver, CO",
+        "sell_data": True,
+        "searches": [101,102],
         "purchases": []
     }
 }
@@ -178,21 +182,12 @@ def handle_new_book_offer(books_db, customers_db, book_id, vendor_name, title, a
     if not all([m_title, m_author, m_year, m_edition, m_publisher, m_condition, m_description, m_price]):
         # Allowed flow: {market: market} C {market: market}
         """{market: market, vendor} C {market: market, vendor}"""
-        success = "Book data incomplete"
-        flag = True
-
-    # allowed read from market DB
-    if m_vendor_name not in customers_db:
-        # Allowed flow: {market: market} C {market: market}
-        """{market: market} C {market: market, vendor}"""
-        success = "Vendor does not exist"
         flag = True
 
     # allowed read from market DB
     if m_book_id in books_db:
         # Allowed flow: {market: market} C {market: market}
         """{market: market} C {market: market, vendor}"""
-        success = "Book already exists"
         flag = True
 
     # DECLASSIFY
@@ -304,6 +299,7 @@ def handle_search_book(
     
     books_db         : {market: market}
     customers_db     : {market: market}
+    sold_customers   : {market: customer, market}
 
     user_name        : {all: user}
     book_id          : {all: user}
@@ -493,59 +489,34 @@ def handle_search_book(
     # if_acts_for(handle_search_book, (market)):
 
     # {market:market}
-    """-----------------------hwo to determine the block label when user_name is different than customers_db--------------------------"""
     """ {market: market, user} """
     user_exists = False
     if user_name in customers_db:
         """{market: market, user} C {market: market, user}"""
         user_exists = True
-    # DECLASSIFY
-    # user_exists -> a_user_exists    : {market: market} -> {market: user, market, advertiser}
-    # PROOF
-    # {market: market, user, advertiser} U {market: {}} = {market: {}}
-    # {market: market} C {market: {}}
-    """ {market: market, user} """
-    a_user_exists = user_exists
 
     # {market: market}
     """ {market: market, user} """
     sell_data = False
     if user_exists:
         if customers_db[user_name]["sell_data"]:
-            """ {market: market, user} U {market: market} = {market: market, user}"""
+            """ {market: market, user(customer)} U {market: market, user(customer)} = {market: market, user(customer)}""" 
             sell_data = True
 
-    # DECLASSIFY
-    # sell_data -> sell_data     : {market: market} -> {market: user, market, advertiser}
-    # PROOF
-    # {market: user, market, advertiser} U {market: {}} = {market: {}}
-    # {market: market} C {market: {}}
-
-    if a_user_exists and sell_data:
-        # DECLASSIFY
-        # m_book_id -> a_book_id            : {market: user, market} -> {market: user, market, advertiser}
-        # PROOF
-        # {market: user, market, advertiser} U {market: {}} = {market: {}}
-        # {market: user, market} C {market: {}}
-
-        # {market: user, market, advertiser} U {market: user, market, advertiser} C {market: user, market, advertiser}
-        a_book_id = m_book_id
-
-        # DECLASSIFY
-        # customers_db[user_name] -> customers_db[user_name]     : {market: market} -> {market: market, advertiser}
-        # PROOF
-        # {market: market, advertiser} U {market: {}} = {market: {}}
-        # {market: market} C {market: {}}
-
-        """
-            Change label with allowed flow:
-            customers_db[user_name]["searches"] -> customers_db[user_name]["searches"]   :  {market: market} -> {market: user, market}
-        """
-        # {market: user, market, advertiser} C {market: market, advertiser}
+    if user_exists and sell_data:
+        
+        # {market: market, customer} C {market: market}
         """{market: user(customer), market} C {market: user(customer), market}"""
-        if matches:
-            # Only update user searches if there are some matches.
-            customers_db[user_name]["searches"].extend(matches.keys())
+        customers_db[user_name]["searches"].extend(matches.keys())
+
+        # if_acts_for(handle_search_book, (market)):
+        #DECLASSIFY
+            # customers_db[user_name] -> sold_customers[user_name]            : {market: market} -> {market: market, adveritser}
+            # PROOF
+            # {market: market, advertiser} U {market: {}} = {market: {}}
+            # {market: market} C {market: {}}
+        """{market: user(customer), market} C {market: user(customer), market}"""
+        sold_customers[user_name] = customers_db[user_name].copy()
 
 
     # if_acts_for(handle_search_book, (market)):
@@ -576,6 +547,7 @@ def handle_purchase_book(books_db, customers_db, book_id, price, name):
     
     books_db         : {market: market}
     customers_db     : {market: market}
+    sold_customers   : {market: customer, market}
     book_id          : {all: customer, market}
     price            : {all: customer, market}
     name             : {all: customer, market}
@@ -703,35 +675,26 @@ def handle_purchase_book(books_db, customers_db, book_id, price, name):
         customers_db[m_name]["purchases"].append(cv_book_id)
 
     if not cv_user_exists:
-        # Allowed flow: {market: customer, market}
+        # Allowed flow: {market: customer, vendor, market} C {market: customer, vendor, market}
         """ Allowed flow: {market: customer, market} """
-        ret = "User does not exist"
-        return ret
+        cv_ret = "User does not exist"
+        return cv_ret
 
     # {market: market}
     """{market: customer, market}"""
     sell_data = False
     if customers_db[m_name]["sell_data"]:
-        """----------------------can we say true is market: customer, market------------------------"""
         """{market: customer, market} C {market: customer, market}"""
         sell_data = True
 
-    # if_acts_for(handle_purchase_book, (market)):
-    # DECLASSIFY
-    # sell_data -> sell_data     : {market: market} -> {market: customer, vendor, market, advertiser}
-    # PROOF
-    # {market: customer, vendor, market, advertiser} U {market: {}} = {market: {}}
-    # {market: market} C {market: {}}
-
     if sell_data:
-        # if_acts_for(handle_purchase_book, (market)):
-        # DECLASSIFY
-        # customers_db[user_name] -> customers_db[user_name]     : {market: market} -> {market: market, advertiser}
-        # PROOF
-        # {market: market, advertiser} U {market: {}} = {market: {}}
-        # {market: market} C {market: {}}
-        # {market: market, advertiser} C {market: market, advertiser}
-
-        pass
+        # if_acts_for(handle_search_book, (market)):
+        #DECLASSIFY
+            # customers_db[user_name] -> sold_customers[user_name]            : {market: market} -> {market: market, adveritser}
+            # PROOF
+            # {market: market, advertiser} U {market: {}} = {market: {}}
+            # {market: market} C {market: {}}
+        """{market: market} C {market: customer, market}"""
+        sold_customers[user_name] = customers_db[user_name].copy()
 
     return cv_ret
