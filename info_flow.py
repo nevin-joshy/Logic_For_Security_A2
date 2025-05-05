@@ -524,7 +524,8 @@ def handle_search_book(
         """{market: customer, market}(e U B) C {market: customer, market}(sold_customers[user_name])"""
         # e U B = {{market: market, adveritser}}(customers_db[user_name]) U {market: market, advertiser}(block/sell_data and user_exists) = {market: market, adveritser}
         # {market: market, adveritser}(e U B) C {market: market, adveritser}(sold_customers[user_name])
-        sold_customers[user_name] = customers_db[user_name].copy()
+        temp = customers_db[user_name].copy()
+        sold_customers[user_name] = temp
 
 
     # if_acts_for(handle_search_book, (market)):
@@ -726,6 +727,7 @@ def handle_purchase_book(books_db, customers_db, book_id, price, name):
         """{market: market}(sell_data) C {market: customer, market}(sold_customers[user_name])"""
         # e U B = {{market: market, adveritser}}(customers_db[user_name]) U {market: market, advertiser}(block/sell_data) = {market: market, adveritser}
         # {market: market, adveritser}(e U B) C {market: market, adveritser}(sold_customers[user_name])
-        sold_customers[user_name] = customers_db[user_name].copy()
+        temp = customers_db[user_name].copy()
+        sold_customers[user_name] = temp
 
     return cv_ret
