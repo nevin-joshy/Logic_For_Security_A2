@@ -3,12 +3,14 @@
 
 
 # Customers database: key = user_id
+
+
 customers_db = {
-    "Alice Smith": {                                    """{market\: market}"""  #{market: market}  
-        "address": "123 Main St, Springfield, IL",      """{market\: market}"""  #{market: market}
-        "sell_data": True,                              """{market\: market}""" #{market: market}
-        "searches": [101, 102],                         """{market\: market, customer}"""  #{market: market}
-        "purchases": [101]                             #"""{market\: market, customer}""" {market: market}
+    "Alice Smith": {                                   #Integrity: """{market\: market}"""  Confidentiality:#{market: market}  
+        "address": "123 Main St, Springfield, IL",     # """{market\: market}"""            #{market: market}
+        "sell_data": True,                             # """{market\: market}"""            #{market: market}
+        "searches": [101, 102],                        # """{market\: market, customer}"""  #{market: market}
+        "purchases": [101]                             #"""{market\: market, customer}"""   #{market: market}
     },
     "Bob Johnson": { 
         "address": "456 Maple Ave, Denver, CO",
@@ -25,11 +27,11 @@ customers_db = {
 }
 
 sold_customers = {
-    "Alice Smith": {                                    """{market\: market, customer}"""   # {market: market, advertiser}
-        "address": "123 Main St, Springfield, IL",      """{market\: market, customer}"""   # {market: market, advertiser}
-        "sell_data": True,                              """{market\: market, customer}"""   # {market: market, advertiser}
-        "searches": [101,102],                          """{market\: market, customer}"""   # {market: market, advertiser}
-        "purchases": [101]                             #"""{market\: market, customer}"""   # {market: market, advertiser}
+    "Alice Smith": {                                   # Integrity: """{market\: market, customer}"""   Confidentiality: # {market: market, advertiser}
+        "address": "123 Main St, Springfield, IL",     # """{market\: market, customer}"""              # {market: market, advertiser}
+        "sell_data": True,                             # """{market\: market, customer}"""              # {market: market, advertiser}
+        "searches": [101,102],                         # """{market\: market, customer}"""              # {market: market, advertiser}
+        "purchases": [101]                             #"""{market\: market, customer}"""               # {market: market, advertiser}
     },
     "Bob Johnson": {
         "address": "456 Maple Ave, Denver, CO",
@@ -41,16 +43,16 @@ sold_customers = {
 
 # Books database: key = book_id
 books_db = {
-    101: {                                                                         """{market\: market}""" #{market: market}
-        "vendor_name": "BookWorld",                                                """{market\: market}""" #{market: market}
-        "title": "The Art of Coding",                                              """{market\: market}""" #{market: market}
-        "author": "Jane Doe",                                                      """{market\: market}""" #{market: market}
-        "year": 2020,                                                              """{market\: market}""" #{market: market}
-        "edition": "1st",                                                          """{market\: market}""" #{market: market}
-        "publisher": "TechBooks Publishing",                                       """{market\: market}""" #{market: market}
-        "condition": "new",                                                        """{market\: market}""" #{market: market}
-        "description": "A comprehensive guide to modern software engineering.",    """{market\: market}""" #{market: market}
-        "price": 39.99,                                                            """{market\: market}""" #{market: market}
+    101: {                                                                        # Integrity: """{market\: market}""" Confidentiality: #{market: market}
+        "vendor_name": "BookWorld",                                               # """{market\: market}"""         #{market: market}
+        "title": "The Art of Coding",                                             # """{market\: market}"""         #{market: market}
+        "author": "Jane Doe",                                                     # """{market\: market}"""         #{market: market}
+        "year": 2020,                                                             # """{market\: market}"""         #{market: market}
+        "edition": "1st",                                                         # """{market\: market}"""         #{market: market}
+        "publisher": "TechBooks Publishing",                                      # """{market\: market}"""         #{market: market}
+        "condition": "new",                                                       # """{market\: market}"""         #{market: market}
+        "description": "A comprehensive guide to modern software engineering.",   # """{market\: market}"""         #{market: market}
+        "price": 39.99,                                                           # """{market\: market}"""         #{market: market}
         "issold": False                                                           #"""{market\: market, customer}""" #{market: market}
     },
     102: {
@@ -368,7 +370,7 @@ def handle_search_book(
 
     if m_vendor_name:
         for (id, data) in matches.items():
-            if m_vendor_name.lower() not in data['vendor_name'].lower():
+            if m_vendor_name.lower() != data['vendor_name'].lower():
                 # Block Label: {market: customer, market}(m_vendor_name) U {market: market}(matches) = {market: market}
                 # Allowed flow: {market: market}(block) C {market: market}(matches_copy)
                 """Block Label: {market: market, customer}(m_vendor_name) U {market: market, customer}(matches) = {market: market, customer}"""
@@ -380,7 +382,8 @@ def handle_search_book(
 
     if m_title:
         for (id, data) in matches.items():
-            if m_title.lower() not in data['title'].lower():
+            print(data)
+            if m_title.lower() != data['title'].lower():
                 # Block Label: {market: customer, market}(m_title) U {market: market}(matches) = {market: market}
                 # Allowed flow: {market: market}(block) C {market: market}(matches_copy)
                 """Block Label: {market: market, customer}(m_title) U {market: market, customer}(matches) = {market: market, customer}"""
@@ -392,7 +395,7 @@ def handle_search_book(
 
     if m_author:
         for (id, data) in matches.items():
-            if m_author.lower() not in data['author'].lower():
+            if m_author.lower() != data['author'].lower():
                 # Block Label: {market: customer, market}(m_author) U {market: market}(matches) = {market: market}
                 # Allowed flow: {market: market}(block) C {market: market}(matches_copy)
                 """Block Label: {market: market, customer}(m_author) U {market: market, customer}(matches) = {market: market, customer}"""
@@ -416,7 +419,7 @@ def handle_search_book(
 
     if m_edition:
         for (id, data) in matches.items():
-            if m_year != data['year']:
+            if m_edition != data['edition']:
                 # Block Label: {market: customer, market}(m_edition) U {market: market}(matches) = {market: market}
                 # Allowed flow: {market: market}(block) C {market: market}(matches_copy)
                 """Block Label: {market: market, customer}(m_edition) U {market: market, customer}(matches) = {market: market, customer}"""
@@ -428,7 +431,7 @@ def handle_search_book(
 
     if m_publisher:
         for (id, data) in matches.items():
-            if m_publisher.lower() not in data['publisher'].lower():
+            if m_publisher.lower() != data['publisher'].lower():
                 # Block Label: {market: customer, market}(m_publisher) U {market: market}(matches) = {market: market}
                 # Allowed flow: {market: market}(block) C {market: market}(matches_copy)
                 """Block Label: {market: market, customer}(m_publisher) U {market: market, customer}(matches) = {market: market, customer}"""
@@ -452,7 +455,7 @@ def handle_search_book(
 
     if m_description:
         for (id, data) in matches.items():
-            if m_description.lower() not in data['description'].lower():
+            if m_description.lower() != data['description'].lower():
                 # Block Label: {market: customer, market}(m_description) U {market: market}(matches) = {market: market}
                 # Allowed flow: {market: market}(block) C {market: market}(matches_copy)
                 """Block Label: {market: market, customer}(m_description) U {market: market, customer}(matches) = {market: market, customer}"""
