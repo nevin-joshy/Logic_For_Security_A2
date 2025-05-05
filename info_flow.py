@@ -4,32 +4,32 @@
 
 # Customers database: key = user_id
 customers_db = {
-    "Alice Smith": {
-        "address": "123 Main St, Springfield, IL",
-        "sell_data": True,
-        "searches": [101, 102],
-        "purchases": [101]
+    "Alice Smith": {                                    """{market\: market}"""  #{market: market}  
+        "address": "123 Main St, Springfield, IL",      """{market\: market}"""  #{market: market}
+        "sell_data": True,                              """{market\: market}""" #{market: market}
+        "searches": [101, 102],                         """{market\: market, customer}"""  #{market: market}
+        "purchases": [101]                             #"""{market\: market, customer}""" {market: market}
     },
-    "Bob Johnson": {
+    "Bob Johnson": { 
         "address": "456 Maple Ave, Denver, CO",
-        "sell_data": True,
+        "sell_data": True, 
         "searches": [101, 102],
         "purchases": []
     },
-    "Charlie Davis": {
+    "Charlie Davis": { 
         "address": "789 Oak Blvd, Boston, MA",
-        "sell_data": False,
-        "searches": [101, 102],
+        "sell_data": False, 
+        "searches": [101, 102], 
         "purchases": []
     }
 }
 
 sold_customers = {
-    "Alice Smith": {
-        "address": "123 Main St, Springfield, IL",
-        "sell_data": True,
-        "searches": [101,102],
-        "purchases": [101]
+    "Alice Smith": {                                    """{market\: market, customer}"""   # {market: market, advertiser}
+        "address": "123 Main St, Springfield, IL",      """{market\: market, customer}"""   # {market: market, advertiser}
+        "sell_data": True,                              """{market\: market, customer}"""   # {market: market, advertiser}
+        "searches": [101,102],                          """{market\: market, customer}"""   # {market: market, advertiser}
+        "purchases": [101]                             #"""{market\: market, customer}"""   # {market: market, advertiser}
     },
     "Bob Johnson": {
         "address": "456 Maple Ave, Denver, CO",
@@ -41,17 +41,17 @@ sold_customers = {
 
 # Books database: key = book_id
 books_db = {
-    101: {
-        "vendor_name": "BookWorld",
-        "title": "The Art of Coding",
-        "author": "Jane Doe",
-        "year": 2020,
-        "edition": "1st",
-        "publisher": "TechBooks Publishing",
-        "condition": "new",
-        "description": "A comprehensive guide to modern software engineering.",
-        "price": 39.99,
-        "issold": False
+    101: {                                                                         """{market\: market}""" #{market: market}
+        "vendor_name": "BookWorld",                                                """{market\: market}""" #{market: market}
+        "title": "The Art of Coding",                                              """{market\: market}""" #{market: market}
+        "author": "Jane Doe",                                                      """{market\: market}""" #{market: market}
+        "year": 2020,                                                              """{market\: market}""" #{market: market}
+        "edition": "1st",                                                          """{market\: market}""" #{market: market}
+        "publisher": "TechBooks Publishing",                                       """{market\: market}""" #{market: market}
+        "condition": "new",                                                        """{market\: market}""" #{market: market}
+        "description": "A comprehensive guide to modern software engineering.",    """{market\: market}""" #{market: market}
+        "price": 39.99,                                                            """{market\: market}""" #{market: market}
+        "issold": False                                                           #"""{market\: market, customer}""" #{market: market}
     },
     102: {
         "vendor_name": "Readers Haven",
@@ -275,24 +275,24 @@ def handle_search_book(
         price=None
 ):
     """
-        Event handler for a user searching for a book.
+        Event handler for a customer searching for a book.
     """
 
     # LABELS
 
     # books_db         : {market: market}
 
-    # user_name        : {user: user, market}
-    # book_id          : {user: user, market}
-    # vendor_name      : {user: user, market}
-    # title            : {user: user, market}
-    # author           : {user: user, market}
-    # year             : {user: user, market}
-    # edition          : {user: user, market}
-    # publisher        : {user: user, market}
-    # condition        : {user: user, market}
-    # description      : {user: user, market}
-    # price            : {user: user, market}
+    # user_name        : {user: customer, market}
+    # book_id          : {customer: customer, market}
+    # vendor_name      : {customer: customer, market}
+    # title            : {customer: customer, market}
+    # author           : {customer: customer, market}
+    # year             : {customer: customer, market}
+    # edition          : {customer: customer, market}
+    # publisher        : {customer: customer, market}
+    # condition        : {customer: customer, market}
+    # description      : {customer: customer, market}
+    # price            : {customer: customer, market}
 
     """
     INTEGRITY LABELS
@@ -301,212 +301,212 @@ def handle_search_book(
     customers_db     : {market: market}
     sold_customers   : {market: customer, market}
 
-    user_name        : {all: user}
-    book_id          : {all: user}
-    vendor_name      : {all: user}
-    title            : {all: user}
-    author           : {all: user}
-    year             : {all: user}
-    edition          : {all: user}
-    publisher        : {all: user}
-    condition        : {all: user}
-    description      : {all: user}
-    price            : {all: user}
+    user_name        : {all: customer}
+    book_id          : {all: customer}
+    vendor_name      : {all: customer}
+    title            : {all: customer}
+    author           : {all: customer}
+    year             : {all: customer}
+    edition          : {all: customer}
+    publisher        : {all: customer}
+    condition        : {all: customer}
+    description      : {all: customer}
+    price            : {all: customer}
     
     """
 
-    # if_acts_for(handle_search_book, (market and user)):
+    # if_acts_for(handle_search_book, (market and customer)):
     """ if_acts_for(handle_search_book, none): """
 
     # DECLASSIFY all labels to be owned by market
-    # book_id -> m_book_id             : {user: user, market} -> {market: user, market}
-    # user_name -> user_name           : {user: user, market} -> {market: user, market}
-    # vendor_name -> m_vendor_name     : {user: user, market} -> {market: user, market}
-    # title -> m_title                 : {user: user, market} -> {market: user, market}
-    # author -> m_author               : {user: user, market} -> {market: user, market}
-    # year -> m_year                   : {user: user, market} -> {market: user, market}
-    # edition -> m_edition             : {user: user, market} -> {market: user, market}
-    # publisher -> m_publisher         : {user: user, market} -> {market: user, market}
-    # condition -> m_condition         : {user: user, market} -> {market: user, market}
-    # description -> m_description     : {user: user, market} -> {market: user, market}
-    # price -> m_price                 : {user: user, market} -> {market: user, market}
+    # book_id -> m_book_id             : {customer: customer, market} -> {market: customer, market}
+    # user_name -> user_name           : {customer: customer, market} -> {market: customer, market}
+    # vendor_name -> m_vendor_name     : {customer: customer, market} -> {market: customer, market}
+    # title -> m_title                 : {customer: customer, market} -> {market: customer, market}
+    # author -> m_author               : {customer: customer, market} -> {market: customer, market}
+    # year -> m_year                   : {customer: customer, market} -> {market: customer, market}
+    # edition -> m_edition             : {customer: customer, market} -> {market: customer, market}
+    # publisher -> m_publisher         : {customer: customer, market} -> {market: customer, market}
+    # condition -> m_condition         : {customer: customer, market} -> {market: customer, market}
+    # description -> m_description     : {customer: customer, market} -> {market: customer, market}
+    # price -> m_price                 : {customer: customer, market} -> {market: customer, market}
     # PROOF:
-    # {market: market, user} U {market: {}; user: {}} = {market: {}; user: {}}
-    # {user: user, market} C {market: {}; user: {}}
+    # {market: market, customer} U {market: {}; customer: {}} = {market: {}; customer: {}}
+    # {customer: customer, market} C {market: {}; customer: {}}
 
     """
     #Use allowed flow to change all labels
 
-        book_id -> m_book_id             : {all: user} -> {market: market, user}
-        user_name -> user_name           : {all: user} -> {market: market, user}
-        vendor_name -> m_vendor_name     : {all: user} -> {market: market, user}
-        title -> m_title                 : {all: user} -> {market: market, user}
-        author -> m_author               : {all: user} -> {market: market, user}
-        year -> m_year                   : {all: user} -> {market: market, user}
-        edition -> m_edition             : {all: user} -> {market: market, user}
-        publisher -> m_publisher         : {all: user} -> {market: market, user}
-        condition -> m_condition         : {all: user} -> {market: market, user}
-        description -> m_description     : {all: user} -> {market: market, user}
-        price -> m_price                 : {all: user} -> {market: market, user}
+        book_id -> m_book_id             : {all: customer} -> {market: market, customer}
+        user_name -> user_name           : {all: customer} -> {market: market, customer}
+        vendor_name -> m_vendor_name     : {all: customer} -> {market: market, customer}
+        title -> m_title                 : {all: customer} -> {market: market, customer}
+        author -> m_author               : {all: customer} -> {market: market, customer}
+        year -> m_year                   : {all: customer} -> {market: market, customer}
+        edition -> m_edition             : {all: customer} -> {market: market, customer}
+        publisher -> m_publisher         : {all: customer} -> {market: market, customer}
+        condition -> m_condition         : {all: customer} -> {market: market, customer}
+        description -> m_description     : {all: customer} -> {market: market, customer}
+        price -> m_price                 : {all: customer} -> {market: market, customer}
 
         PROOF:
-        {all: user} C {market: market, user}
+        {all: customer} C {market: market, customer}
     """
 
     m_book_id, m_vendor_name, m_title, m_author, m_year, m_edition, m_publisher, m_condition, m_description, m_price = book_id, vendor_name, title, author, year, edition, publisher, condition, description, price
 
     # {market: market}
-    """{market: market, user}"""
+    """{market: market, customer}"""
     matches = {}
     for id, data in books_db.items():
-        '''{market: market} C {market: market, user}'''
+        '''{market: market} C {market: market, customer}'''
         matches[id] = data
     # {market: market}
-    """{market: market, user}"""
+    """{market: market, customer}"""
     matches_copy = matches.copy()
 
     if m_book_id:
         for (id, data) in matches.items():
             if m_book_id != id:
-                # Allowed flow: {market: user, market} U {market: market} = {market: market}
-                """{market: market, user} U {market: market, user} = {market: market, user}"""
-                """{market: market, user} C {market: market, user}"""
+                # Allowed flow: {market: customer, market} U {market: market} = {market: market}
+                """{market: market, customer} U {market: market, customer} = {market: market, customer}"""
+                """{market: market, customer} C {market: market, customer}"""
                 matches_copy.pop(id, None)
                 # matches_copy.remove((id, data))
     # {market: market}
-    """{market: market, user}"""
+    """{market: market, customer}"""
     matches = matches_copy.copy()
 
     if m_vendor_name:
         for (id, data) in matches.items():
             if m_vendor_name.lower() not in data['vendor_name'].lower():
-                # Allowed flow: {market: user, market} U {market: market} = {market: market}
-                """{market: market, user} U {market: market, user} = {market: market, user}"""
-                """{market: market, user} C {market: market, user}"""
+                # Allowed flow: {market: customer, market} U {market: market} = {market: market}
+                """{market: market, customer} U {market: market, customer} = {market: market, customer}"""
+                """{market: market, customer} C {market: market, customer}"""
                 matches_copy.pop(id, None)
                 # matches_copy.remove((id, data))
     # {market: market}
-    """{market: market, user}"""
+    """{market: market, customer}"""
     matches = matches_copy.copy()
 
     if m_title:
         for (id, data) in matches.items():
             if m_title.lower() not in data['title'].lower():
-                # Allowed flow: {market: user, market} U {market: market} = {market: market}
-                """{market: market, user} U {market: market, user} = {market: market, user}"""
-                """{market: market, user} C {market: market, user}"""
+                # Allowed flow: {market: customer, market} U {market: market} = {market: market}
+                """{market: market, customer} U {market: market, customer} = {market: market, customer}"""
+                """{market: market, customer} C {market: market, customer}"""
                 matches_copy.pop(id, None)
                 # matches_copy.remove((id, data))
     # {market: market}
-    """{market: market, user}"""
+    """{market: market, customer}"""
     matches = matches_copy.copy()
 
     if m_author:
         for (id, data) in matches.items():
             if m_author.lower() not in data['author'].lower():
-                # Allowed flow: {market: user, market} U {market: market} = {market: market}
-                """{market: market, user} U {market: market, user} = {market: market, user}"""
-                """{market: market, user} C {market: market, user}"""
+                # Allowed flow: {market: customer, market} U {market: market} = {market: market}
+                """{market: market, customer} U {market: market, customer} = {market: market, customer}"""
+                """{market: market, customer} C {market: market, customer}"""
                 matches_copy.pop(id, None)
                 # matches_copy.remove((id, data))
     # {market: market}
-    """{market: market, user}"""
+    """{market: market, customer}"""
     matches = matches_copy.copy()
 
     if m_year:
         for (id, data) in matches.items():
             if m_year != data['year']:
-                # Allowed flow: {market: user, market} U {market: market} = {market: market}
-                """{market: market, user} U {market: market, user} = {market: market, user}"""
-                """{market: market, user} C {market: market, user}"""
+                # Allowed flow: {market: customer, market} U {market: market} = {market: market}
+                """{market: market, customer} U {market: market, customer} = {market: market, customer}"""
+                """{market: market, customer} C {market: market, customer}"""
                 matches_copy.pop(id, None)
                 # matches_copy.remove((id, data))
     # {market: market}
-    """{market: market, user}"""
+    """{market: market, customer}"""
     matches = matches_copy.copy()
 
     if m_edition:
         for (id, data) in matches.items():
             if m_year != data['year']:
-                # Allowed flow: {market: user, market} U {market: market} = {market: market}
-                """{market: market, user} U {market: market, user} = {market: market, user}"""
-                """{market: market, user} C {market: market, user}"""
+                # Allowed flow: {market: customer, market} U {market: market} = {market: market}
+                """{market: market, customer} U {market: market, customer} = {market: market, customer}"""
+                """{market: market, customer} C {market: market, customer}"""
                 matches_copy.pop(id, None)
                 # matches_copy.remove((id, data))
     # {market: market}
-    """{market: market, user}"""
+    """{market: market, customer}"""
     matches = matches_copy.copy()
 
     if m_publisher:
         for (id, data) in matches.items():
             if m_publisher.lower() not in data['publisher'].lower():
-                # Allowed flow: {market: user, market} U {market: market} = {market: market}
-                """{market: market, user} U {market: market, user} = {market: market, user}"""
-                """{market: market, user} C {market: market, user}"""
+                # Allowed flow: {market: customer, market} U {market: market} = {market: market}
+                """{market: market, customer} U {market: market, customer} = {market: market, customer}"""
+                """{market: market, customer} C {market: market, customer}"""
                 matches_copy.pop(id, None)
                 # matches_copy.remove((id, data))
     # {market: market}
-    """{market: market, user}"""
+    """{market: market, customer}"""
     matches = matches_copy.copy()
 
     if m_condition:
         for (id, data) in matches.items():
             if m_condition.lower() != data['condition'].lower():
-                # Allowed flow: {market: user, market} U {market: market} = {market: market}
-                """{market: market, user} U {market: market, user} = {market: market, user}"""
-                """{market: market, user} C {market: market, user}"""
+                # Allowed flow: {market: customer, market} U {market: market} = {market: market}
+                """{market: market, customer} U {market: market, customer} = {market: market, customer}"""
+                """{market: market, customer} C {market: market, customer}"""
                 matches_copy.pop(id, None)
                 # matches_copy.remove((id, data))
     # {market: market}
-    """{market: market, user}"""
+    """{market: market, customer}"""
     matches = matches_copy.copy()
 
     if m_description:
         for (id, data) in matches.items():
             if m_description.lower() not in data['description'].lower():
-                # Allowed flow: {market: user, market} U {market: market} = {market: market}
-                """{market: market, user} U {market: market, user} = {market: market, user}"""
-                """{market: market, user} C {market: market, user}"""
+                # Allowed flow: {market: customer, market} U {market: market} = {market: market}
+                """{market: market, customer} U {market: market, customer} = {market: market, customer}"""
+                """{market: market, customer} C {market: market, customer}"""
                 # matches.remove((id, data))
                 matches_copy.pop(id, None)
     # {market: market}
-    """{market: market, user}"""
+    """{market: market, customer}"""
     matches = matches_copy.copy()
 
     if m_price:
         for (id, data) in matches.items():
             if m_price != data['price']:
-                # Allowed flow: {market: user, market} U {market: market} = {market: market}
-                """{market: market, user} U {market: market, user} = {market: market, user}"""
-                """{market: market, user} C {market: market, user}"""
+                # Allowed flow: {market: customer, market} U {market: market} = {market: market}
+                """{market: market, customer} U {market: market, customer} = {market: market, customer}"""
+                """{market: market, customer} C {market: market, customer}"""
                 matches_copy.pop(id, None)
                 # matches.remove((id, data))
     # {market: market}
-    """{market: market, user}"""
+    """{market: market, customer}"""
     matches = matches_copy.copy()
 
     # SELLING DATA
     # if_acts_for(handle_search_book, (market)):
 
     # {market:market}
-    """ {market: market, user} """
+    """ {market: market, customer} """
     user_exists = False
     if user_name in customers_db:
-        """{market: market, user} C {market: market, user}"""
+        """{market: market, customer} C {market: market, customer}"""
         user_exists = True
 
     # {market: market}
-    """ {market: market, user} """
+    """ {market: market, customer} """
     sell_data = False
     if user_exists:
         if customers_db[user_name]["sell_data"]:
-            """ {market: market, user(customer)} U {market: market, user(customer)} = {market: market, user(customer)}""" 
+            """ {market: market, customer} U {market: market, customer} = {market: market, customer}""" 
             sell_data = True
 
     if user_exists and sell_data:
         
         # {market: market, customer} C {market: market}
-        """{market: user(customer), market} C {market: user(customer), market}"""
+        """{market: customer, market} C {market: customer, market}"""
         customers_db[user_name]["searches"].extend(matches.keys())
 
         # if_acts_for(handle_search_book, (market)):
@@ -515,18 +515,18 @@ def handle_search_book(
             # PROOF
             # {market: market, advertiser} U {market: {}} = {market: {}}
             # {market: market} C {market: {}}
-        """{market: user(customer), market} C {market: user(customer), market}"""
+        """{market: customer, market} C {market: customer, market}"""
         sold_customers[user_name] = customers_db[user_name].copy()
 
 
     # if_acts_for(handle_search_book, (market)):
     # DECLASSIFY
-    # matches -> p_matches            : {market: market} -> {market: user, market}
+    # matches -> p_matches            : {market: market} -> {market: customer, market}
     # PROOF
-    # {market: market, user} U {market: {}} = {market: {}}
+    # {market: market, customer} U {market: {}} = {market: {}}
     # {market: market} C {market: {}}
 
-    """ Already {market: market, user}, sufficient for return to user """
+    """ Already {market: market, customer}, sufficient for return to customer """
 
     p_matches = matches.copy()
 
@@ -601,7 +601,7 @@ def handle_purchase_book(books_db, customers_db, book_id, price, name):
     # {market: customer, market} U {market: {}} = {market: {}}
     # {market: market} C {market: {}}
 
-    """ Already {market: customer, market}, sufficient for return to user """
+    """ Already {market: customer, market}, sufficient for return to customer """
 
     c_match = match
 
