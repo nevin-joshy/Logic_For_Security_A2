@@ -83,7 +83,7 @@ books_db = {
 }
 
 
-def handle_new_book_offer(books_db, customers_db, book_id, vendor_name, title, author, year, edition, publisher,
+def handle_new_book_offer(books_db, book_id, vendor_name, title, author, year, edition, publisher,
                           condition, description, price):
     """
     Event handler for a new book offer uploaded by a vendor.
@@ -251,6 +251,8 @@ def handle_new_book_offer(books_db, customers_db, book_id, vendor_name, title, a
 
 def handle_search_book(
         books_db=None,
+        customers_db=None,
+        sold_customers=None,
         book_id=None,
         user_name=None,
         vendor_name=None,
@@ -545,7 +547,7 @@ def handle_search_book(
     return p_matches
 
 
-def handle_purchase_book(books_db, customers_db, book_id, price, name):
+def handle_purchase_book(books_db, customers_db, sold_customers, book_id, price, name):
     # LABELS
 
     # books_db         : labels at top of file
