@@ -724,7 +724,7 @@ def handle_purchase_book(books_db, customers_db, sold_customers, book_id, price,
     if sell_data:
         # if_acts_for(handle_search_book, (market)):
         #DECLASSIFY
-            # customers_db[user_name] -> temp            : {market: market}(all data for a user is {market:market}) -> {market: market, adveritser}
+            # customers_db[user_name] -> sold_customers[user_name]            : {market: market}(all data for a user is {market:market}) -> {market: market, adveritser}
             # PROOF
             # {market: market, advertiser} U {market: {}} = {market: {}}
             # {market: market} C {market: {}}
