@@ -511,7 +511,7 @@ def handle_search_book(
         # {market: market} C {market: {}}
         
     if user_exists:
-        #Block Label: {market: market}(user_exists)
+        #Block Label: {market: market, advertiser}(user_exists)
         # e U B = {market: market}(matches) U {market: market}(block) = {market: market}
         # {market: market}(e U B) C {market: market}(customers_db[user_name]["searches"])
         """Block Label: {market: market, customer}(user_exists)"""
@@ -521,16 +521,15 @@ def handle_search_book(
         if sell_data:
             # if_acts_for(handle_search_book, (market)):
             #DECLASSIFY
-                # customers_db[user_name] -> temp        : {market: market}(all data for a user is {market:market}) -> {market: market, adveritser}
+                # customers_db[user_name] -> sold_customers[user_name]     : {market: market}(all data for a user is {market:market}) -> {market: market, adveritser}
                 # PROOF
                 # {market: market, advertiser} U {market: {}} = {market: {}}
                 # {market: market} C {market: {}}
             """e U B = {market: market}(customers_db[user_name]) U {market: customer, market}(block) = {market: customer, market}"""
             """{market: customer, market}(e U B) C {market: customer, market}(sold_customers[user_name])"""
-            # e U B = {{market: market, adveritser}}(customers_db[user_name]) U {market: market, advertiser}(block/sell_data and user_exists) = {market: market, adveritser}
+            # e U B = {{market: market, advertiser}}(declassify(customers_db[user_name])) U {market: market, advertiser}(block/sell_data and user_exists) = {market: market, adveritser}
             # {market: market, adveritser}(e U B) C {market: market, adveritser}(sold_customers[user_name])
-            temp = customers_db[user_name].copy()
-            sold_customers[user_name] = temp
+            sold_customers[user_name] = customers_db[user_name].copy()
 
 
     # if_acts_for(handle_search_book, (market)):
@@ -730,9 +729,8 @@ def handle_purchase_book(books_db, customers_db, sold_customers, book_id, price,
             # {market: market, advertiser} U {market: {}} = {market: {}}
             # {market: market} C {market: {}}
         """{market: market}(sell_data) C {market: customer, market}(sold_customers[user_name])"""
-        # e U B = {{market: market, adveritser}}(customers_db[user_name]) U {market: market, advertiser}(block/sell_data) = {market: market, adveritser}
+        # e U B = {{market: market, adveritser}}(declassify(customers_db[user_name])) U {market: market, advertiser}(block/sell_data) = {market: market, adveritser}
         # {market: market, adveritser}(e U B) C {market: market, adveritser}(sold_customers[user_name])
-        temp = customers_db[user_name].copy()
-        sold_customers[user_name] = temp
+        sold_customers[user_name] = customers_db[user_name].copy()
 
     return cv_ret
