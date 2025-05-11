@@ -168,7 +168,7 @@ def handle_new_book_offer(books_db, book_id, vendor_name, title, author, year, e
     m_book_id, m_vendor_name, m_title, m_author, m_year, m_edition, m_publisher, m_condition, m_description, m_price = book_id, vendor_name, title, author, year, edition, publisher, condition, description, price
 
     # {market: market, vendor}
-    """{market: market}"""
+    """{market: market, vendor}"""
     success = ""
 
     # {market : market}
@@ -201,10 +201,12 @@ def handle_new_book_offer(books_db, book_id, vendor_name, title, author, year, e
     # {market: market, vendor}(dest label) U {market: {}}(authority) = {market: {}}
     # {market: market} C {market: {}}
 
+    """{market: market, vendor}"""
     v_flag = flag
 
     if v_flag:
         # allowed flow - both are {market: market, vendor}
+        """{market: market, vendor} C {market: market, vendor}"""
         return success
 
     """
@@ -243,9 +245,8 @@ def handle_new_book_offer(books_db, book_id, vendor_name, title, author, year, e
     }
 
     # {market: market, vendor}
-    """{market: market}"""
+    """{market: market, vendor}"""
     success = f"Offer added successfully"
-
     return success
 
 
@@ -543,6 +544,8 @@ def handle_search_book(
 
     p_matches = matches.copy()
 
+    #{market: customer, market}
+    """{market: market, customer}"""
     return p_matches
 
 
@@ -733,4 +736,6 @@ def handle_purchase_book(books_db, customers_db, sold_customers, book_id, price,
         # {market: market, adveritser}(e U B) C {market: market, adveritser}(sold_customers[user_name])
         sold_customers[user_name] = customers_db[user_name].copy()
 
+    #{market: customer, vendor, market}
+    """{market: customer, market}"""
     return cv_ret
